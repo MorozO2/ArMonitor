@@ -17,6 +17,20 @@
         android:id="@+id/toAr"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="24dp"
         android:text="view ar" />
+
+    <Button
+        android:id="@+id/mqttConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toAr"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="27dp"
+        android:layout_marginTop="47dp"
+        android:text="MQTT" />
 
 </RelativeLayout>
