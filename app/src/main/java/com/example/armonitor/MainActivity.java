@@ -24,12 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private Button toAr;
     private Button mqttConnect;
     private static final String TAG = MainActivity.class.getSimpleName();
-    String topic = "topic/testing";
-    int qos = 1;
-    String clientId = MqttClient.generateClientId();
-    MqttAndroidClient client =
-            new MqttAndroidClient(this.getApplicationContext(), "tcp://10.202.50.252:1883",
-                    clientId);
+
 
 
     @Override
@@ -46,6 +41,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        final String topic = "topic/testing";
+        final int qos = 1;
+        String clientId = MqttClient.generateClientId();
+        final MqttAndroidClient client =
+                new MqttAndroidClient(this.getApplicationContext(), "tcp://10.202.50.252:1883",
+                        clientId);
+
+
+
+
+
+
+        //CONNECT////////////////////////////////////////////////////////////////////////////////////////////
         try {
             IMqttToken token = client.connect();
             token.setActionCallback(new IMqttActionListener() {
@@ -53,6 +61,31 @@ public class MainActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     // We are connected
                     Log.d(TAG, "onSuccess");
+
+                    //SUBSCRIBE: MUST BE INSIDE THE onSuccess() method after client.connect()//////////////////
+                    try {
+                        final IMqttToken subToken = client.subscribe(topic, qos);
+                        subToken.setActionCallback(new IMqttActionListener() {
+                            @Override
+                            public void onSuccess(IMqttToken asyncActionToken) {
+                                // The message was published
+                                Log.d(TAG, "Subscribed");
+
+                            }
+
+                            @Override
+                            public void onFailure(IMqttToken asyncActionToken,
+                                                  Throwable exception) {
+                                // The subscription could not be performed, maybe the user was not
+                                // authorized to subscribe on the specified topic e.g. using wildcards
+                                Log.d(TAG, "Subscribe failed");
+
+                            }
+                        });
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                    //SUBSCRIBE*/////////////////////////////////////////////////////////////////
                 }
 
                 @Override
@@ -65,31 +98,26 @@ public class MainActivity extends AppCompatActivity {
         } catch (MqttException e) {
             e.printStackTrace();
         }
+        //CONNECT*////////////////////////////////////////////////////////////////////////////////
 
 
-        //SUBSCRIBE
-        try {
-            IMqttToken subToken = client.subscribe(topic, qos);
-            subToken.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    // The message was published
-                    Log.d(TAG, "Subscribed");
-                }
+        client.setCallback(new MqttCallback() {
+            @Override
+            public void connectionLost(Throwable cause) {
+                Log.d(TAG, "Connection lost");
+            }
 
-                @Override
-                public void onFailure(IMqttToken asyncActionToken,
-                                      Throwable exception) {
-                    // The subscription could not be performed, maybe the user was not
-                    // authorized to subscribe on the specified topic e.g. using wildcards
-                    Log.d(TAG, "Subscribe failed");
+            @Override
+            public void messageArrived(String topic, MqttMessage message) throws Exception {
+                Log.d(TAG, message.toString());
+            }
 
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-        //SUBSCRIBE
+            @Override
+            public void deliveryComplete(IMqttDeliveryToken token) {
+                Log.d(TAG, "Delivery complete");
+            }
+        });
+
 
 
     }
@@ -99,22 +127,5 @@ public class MainActivity extends AppCompatActivity {
         Intent openArView = new Intent(this, ArActivity.class);
         startActivity(openArView);
     }
-
-    /*/IMPLEMENTATION METHODS FROM MqttCallBack
-    @Override
-    public void connectionLost(Throwable cause) {
-        Log.d(TAG,"Connection lost");
-    }
-
-    @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
-
-        String payload = new String(message.getPayload());
-        Log.d(TAG, payload);
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken token) {
-        Log.d(TAG, "delivery complete");
-    }*/
 }
+
