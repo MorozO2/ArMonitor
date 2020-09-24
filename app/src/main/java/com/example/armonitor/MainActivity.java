@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -118,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, payload);
                 Toast.makeText(getApplicationContext(), payload, payload.length()).show();
                 DisplayMessage(payload);
-
             }
 
             @Override
@@ -131,20 +131,28 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //METHOD FOR OPENING AR ACTIVITY
+    ///METHOD FOR OPENING AR ACTIVITY//////////////////////////////////////////
     private void openArActivity() {
         Intent openArView = new Intent(this, ArActivity.class);
         startActivity(openArView);
     }
+    ///METHOD FOR OPENING AR ACTIVITY/*/////////////////////////////////////////
 
+
+    ///METHOD FOR DISPLAYING ACTIVITY AS TEXTVIEW//////////////////////////////////////////
     private void DisplayMessage(String msg)
     {
         LinearLayout ll = (LinearLayout) findViewById(R.id.receivedLayout);
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        params.setMargins(ViewGroup.LayoutParams.MATCH_PARENT,10, ViewGroup.LayoutParams.MATCH_PARENT,10);
         TextView mqttMsg = new TextView( getApplicationContext());
+        mqttMsg.setLayoutParams(params);
         mqttMsg.setBackgroundColor(getResources().getColor(R.color.lime));
         mqttMsg.setGravity(Gravity.CENTER | Gravity.BOTTOM);
         mqttMsg.setText(msg);
         ll.addView(mqttMsg);
     }
+    ///METHOD FOR OPENING AR ACTIVITY/*/////////////////////////////////////////
+
 }
 
