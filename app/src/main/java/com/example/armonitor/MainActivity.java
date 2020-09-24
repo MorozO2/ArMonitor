@@ -2,11 +2,15 @@ package com.example.armonitor;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -110,8 +114,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                Log.d(TAG, message.toString());
-                Toast.makeText(getApplicationContext(), message.toString(), message.toString().length()).show();
+                String payload = message.toString();
+                Log.d(TAG, payload);
+                Toast.makeText(getApplicationContext(), payload, payload.length()).show();
+                DisplayMessage(payload);
+
             }
 
             @Override
@@ -128,6 +135,16 @@ public class MainActivity extends AppCompatActivity {
     private void openArActivity() {
         Intent openArView = new Intent(this, ArActivity.class);
         startActivity(openArView);
+    }
+
+    private void DisplayMessage(String msg)
+    {
+        LinearLayout ll = (LinearLayout) findViewById(R.id.receivedLayout);
+        TextView mqttMsg = new TextView( getApplicationContext());
+        mqttMsg.setBackgroundColor(getResources().getColor(R.color.lime));
+        mqttMsg.setGravity(Gravity.CENTER | Gravity.BOTTOM);
+        mqttMsg.setText(msg);
+        ll.addView(mqttMsg);
     }
 }
 
