@@ -6,31 +6,32 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <ScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MSG ACTIVITY"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_below="@+id/toAr"
+        android:layout_alignStart="@+id/toAr"
+        android:layout_alignEnd="@+id/toAr"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="11dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+    </ScrollView>
+
 
     <Button
         android:id="@+id/toAr"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="26dp"
-        android:layout_marginTop="24dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
         android:text="view ar" />
 
-    <Button
-        android:id="@+id/mqttConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toAr"
-        android:layout_alignParentStart="true"
-        android:layout_marginStart="27dp"
-        android:layout_marginTop="47dp"
-        android:text="MQTT" />
-
 </RelativeLayout>
+

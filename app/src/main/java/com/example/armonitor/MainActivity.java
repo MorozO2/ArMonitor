@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
@@ -110,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 Log.d(TAG, message.toString());
+                Toast.makeText(getApplicationContext(), message.toString(), message.toString().length()).show();
             }
 
             @Override
