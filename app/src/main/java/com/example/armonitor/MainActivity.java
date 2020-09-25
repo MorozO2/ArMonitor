@@ -58,55 +58,6 @@ public class MainActivity extends AppCompatActivity {
         MqttConnectSub(client, topic, qos);
 
 
-/*
-        //CONNECT MQTT////////////////////////////////////////////////////////////////////////////////////////////
-        try {
-            IMqttToken token = client.connect();
-            token.setActionCallback(new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    // We are connected
-                    Log.d(TAG, "onSuccess");
-
-                    //SUBSCRIBE TO MQTT TOPIC: MUST BE INSIDE THE onSuccess() method after client.connect()//////////////////
-                    try {
-                        final IMqttToken subToken = client.subscribe(topic, qos);
-                        subToken.setActionCallback(new IMqttActionListener() {
-                            @Override
-                            public void onSuccess(IMqttToken asyncActionToken) {
-                                // The message was published
-                                Log.d(TAG, "Subscribed");
-
-                            }
-
-                            @Override
-                            public void onFailure(IMqttToken asyncActionToken,
-                                                  Throwable exception) {
-                                // The subscription could not be performed, maybe the user was not
-                                // authorized to subscribe on the specified topic e.g. using wildcards
-                                Log.d(TAG, "Subscribe failed");
-
-                            }
-                        });
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                    //SUBSCRIBE/////////////////////////////////////////////////////////////////
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // Something went wrong e.g. connection timeout or firewall problems
-                    Log.d(TAG, "onFailure");
-
-                }
-            });
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
-        //CONNECT////////////////////////////////////////////////////////////////////////////////
-*/
-
         client.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
