@@ -28,7 +28,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 public class MainActivity extends AppCompatActivity {
 
     private Button toAr;
-    private Button mqttConnect;
     private static final String TAG = MainActivity.class.getSimpleName();
 
 
