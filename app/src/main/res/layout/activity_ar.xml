@@ -15,11 +15,11 @@
         android:layout_marginEnd="32dp"
         tools:context=".MainActivity">
 
-        <fragment
-            android:id="@+id/ux_fragment"
-            android:name="com.google.ar.sceneform.ux.ArFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+        <android.opengl.GLSurfaceView
+            android:id="@+id/surfaceview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_gravity="top"/>
     </FrameLayout>
 
     <Button
@@ -32,5 +32,8 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        android:text="view msg" />
+        android:text="view msg"
+
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true" />
 </RelativeLayout>
