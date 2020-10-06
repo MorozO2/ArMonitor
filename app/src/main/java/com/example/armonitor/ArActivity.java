@@ -12,8 +12,11 @@ import android.widget.Button;
 
 import com.google.ar.core.ArCoreApk;
 
+import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
-public class ArActivity extends AppCompatActivity {
+
+public class ArActivity extends AppCompatActivity implements GLSurfaceView.Renderer{
 
     private static final String TAG = ArActivity.class.getSimpleName();
     private Button toMsg;
@@ -26,7 +29,11 @@ public class ArActivity extends AppCompatActivity {
         setContentView(R.layout.activity_ar);
 
         surfaceView = findViewById(R.id.surfaceview);
-
+        surfaceView.setPreserveEGLContextOnPause(true);
+        surfaceView.setEGLContextClientVersion(2);
+        surfaceView.setEGLConfigChooser(8, 8, 8, 8, 16, 0); // Alpha used for plane blending.
+        surfaceView.setRenderer(this);
+        surfaceView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         
         toMsg = findViewById(R.id.toMsg);
         toMsg.setOnClickListener(new View.OnClickListener() {
@@ -42,4 +49,18 @@ public class ArActivity extends AppCompatActivity {
         startActivity(openMsgView);
     }
 
+    @Override
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
+
+    }
+
+    @Override
+    public void onDrawFrame(GL10 gl) {
+
+    }
 }
