@@ -10,8 +10,10 @@ import android.os.Bundle;
 
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 
+import com.google.ar.core.Frame;
 import com.google.ar.core.Session;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableApkTooOldException;
@@ -76,11 +78,25 @@ public class ArActivity extends AppCompatActivity implements GLSurfaceView.Rende
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
+        int displayRotation = getSystemService(WindowManager.class).getDefaultDisplay().getRotation();
+        session.setDisplayGeometry(displayRotation, width, height);
     }
 
     @Override
     public void onDrawFrame(GL10 gl) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        if(session == null)
+        {
+            return;
+        }
+
+        try{
+            session.setCameraTextureName(backgroundRenderer.getTextureId());
+            Frame frame = session.update();
+            backgroundRenderer.draw(frame);
+        } catch(Exception e){
+
+        }
     }
 
     @Override
