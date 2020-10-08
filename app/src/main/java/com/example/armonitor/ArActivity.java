@@ -8,17 +8,23 @@ import android.opengl.GLES20;
 
 import android.os.Bundle;
 
-import android.se.omapi.Session;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.ar.core.Session;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.UnavailableApkTooOldException;
+import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
+import com.google.ar.core.exceptions.UnavailableDeviceNotCompatibleException;
+import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 
 
 import java.io.IOException;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
+
 
 
 public class ArActivity extends AppCompatActivity implements GLSurfaceView.Renderer{
@@ -84,7 +90,8 @@ public class ArActivity extends AppCompatActivity implements GLSurfaceView.Rende
         try {
             session = new Session(this);
             session.resume();
-        } catch (CameraAccessException e) {
+
+        } catch (UnavailableArcoreNotInstalledException | UnavailableApkTooOldException | UnavailableSdkTooOldException | UnavailableDeviceNotCompatibleException | CameraNotAvailableException e) {
 
         session = null;
         return;
