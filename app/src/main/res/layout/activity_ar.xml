@@ -15,11 +15,11 @@
         android:layout_marginEnd="32dp"
         tools:context=".MainActivity">
 
-        <android.opengl.GLSurfaceView
-            android:id="@+id/surfaceview"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="top"/>
+        <fragment
+            android:id="@+id/arView"
+            android:name="com.google.ar.sceneform.ux.ArFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </FrameLayout>
 
     <Button
