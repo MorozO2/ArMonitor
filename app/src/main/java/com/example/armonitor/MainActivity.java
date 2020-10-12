@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
         final int qos = 1;
         String clientId = MqttClient.generateClientId();
         final MqttAndroidClient client =
-                new MqttAndroidClient(this.getApplicationContext(), "tcp://10.202.50.252:1883",
+                new MqttAndroidClient(this.getApplicationContext(), "tcp://10.202.50.40:1883",
                         clientId);
 
 

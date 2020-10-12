@@ -43,7 +43,6 @@ dependencies {
 
     implementation 'com.google.ar:core:1.19.0'
 
-
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5' //MQTT
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1' //MQTT
 }
