@@ -26,8 +26,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        toAr = findViewById(R.id.toAr)
-        toAr?.setOnClickListener(View.OnClickListener
+        val toAr = findViewById<Button>(R.id.toAr)
+
+        toAr.setOnClickListener(View.OnClickListener
         {
             openArActivity()
         })
@@ -44,8 +45,7 @@ class MainActivity : AppCompatActivity() {
         startActivity(openArView)
     }
 
-    ///METHOD FOR OPENING AR ACTIVITY/*/////////////////////////////////////////
-    ///METHOD FOR DISPLAYING ACTIVITY AS TEXTVIEW//////////////////////////////////////////
+
     private fun DisplayMessage(msg: String) {
         val ll = findViewById<View>(R.id.receivedLayout) as LinearLayout
         val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)

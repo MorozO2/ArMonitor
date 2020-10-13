@@ -11,6 +11,7 @@ android {
         sourceCompatibility 1.8
         targetCompatibility 1.8
 
+
     }
 
     defaultConfig {
@@ -37,7 +38,7 @@ android {
 }
 dependencies {
     // ARCore
-    def ar_core_version = '1.17.0'
+    def ar_core_version = '1.15.0'
     implementation "com.google.ar:core:$ar_core_version"
     implementation "com.google.ar.sceneform.ux:sceneform-ux:$ar_core_version"
     implementation "com.google.ar.sceneform:core:$ar_core_version"
