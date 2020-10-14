@@ -1,11 +1,6 @@
 
 package com.example.armonitor
 
-//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
-//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
-//import uk.co.appoly.arcorelocation.utils.Utils2D
-
-import android.R
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -20,9 +15,15 @@ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
-import kotlinx.android.synthetic.main.activity_ar.*
+
 import uk.co.appoly.arcorelocation.LocationScene
-import java.util.concurrent.CompletableFuture
+import uk.co.appoly.arcorelocation.LocationMarker
+//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
+//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
+import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper
+//import uk.co.appoly.arcorelocation.utils.Utils2D
+
+import kotlinx.android.synthetic.main.activity_ar.*
 
 
 class ArActivity : AppCompatActivity(){
@@ -56,19 +57,15 @@ class ArActivity : AppCompatActivity(){
         }
 
         //onUpdateListener for each frame
-        arFragment.arSceneView.scene.addOnUpdateListener { frameTime->
+        arFragment.arSceneView.scene.addOnUpdateListener {frameTime->
             arFragment.onUpdate(frameTime)
           onUpdate()
         }
-
-
-
-
     }
 
+    //GET CAMERA POSITION ON EACH FRAME
     fun onUpdate()
     {
-        //GET CAMERA POSITION ON EACH FRAME
         val frame: Frame? = arFragment.arSceneView.arFrame
         val camera: Camera? = frame?.camera
         if (camera != null) {
