@@ -1,12 +1,14 @@
 package com.example.armonitor
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.ar.core.Anchor
-import com.google.ar.core.Plane
-import com.google.ar.core.Session
+import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
@@ -17,20 +19,22 @@ import kotlinx.android.synthetic.main.activity_ar.*
 
 class ArActivity : AppCompatActivity(){
 
+
     private var mUserRequestedInstall = true
     var mSession: Session? = null
-
+    private var toMsg: Button? = null
     private lateinit var arFragment: ArFragment
     private lateinit var selectedObject: Uri
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ar)
-
+        val toMsg = findViewById<Button>(R.id.toMsg)
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
-
         //setModelPath("rocket.sfb")
-
+        toMsg.setOnClickListener(View.OnClickListener {
+            openMsgActivity()
+        })
         //Tab listener for the ArFragment
         arFragment.setOnTapArPlaneListener { hitResult, plane, _ ->
             //If surface is not horizontal and upward facing
@@ -43,10 +47,30 @@ class ArActivity : AppCompatActivity(){
             placeObject(arFragment, anchor, selectedObject)
         }
 
-
-
+        //onUpdateListener for each frame
+      arFragment.arSceneView.scene.addOnUpdateListener {frameTime->
+            arFragment.onUpdate(frameTime)
+          onUpdate()
+        }
     }
 
+    fun onUpdate()
+    {
+        val frame: Frame? = arFragment.arSceneView.arFrame
+        val camera: Camera? = frame?.camera
+        if (camera != null) {
+            if(camera.trackingState == TrackingState.TRACKING) {
+                val cameraPose: Pose = camera.displayOrientedPose
+                Log.i("Pose", "$cameraPose")
+            }
+        }
+    }
+
+    private fun openMsgActivity()
+    {
+        val openMsg = Intent(this, MainActivity::class.java)
+        startActivity(openMsg)
+    }
 
     private fun placeObject(fragment: ArFragment, anchor: Anchor, modelUri: Uri) {
         val modelRenderable = ModelRenderable.builder()
@@ -76,6 +100,7 @@ class ArActivity : AppCompatActivity(){
         val toast = Toast.makeText(applicationContext, modelFileName, Toast.LENGTH_SHORT)
         toast.show()
     }
+
 
 /*
     protected override fun onResume() {
