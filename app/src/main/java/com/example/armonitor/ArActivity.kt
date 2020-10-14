@@ -1,6 +1,10 @@
 
 package com.example.armonitor
 
+//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
+//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
+//import uk.co.appoly.arcorelocation.utils.Utils2D
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -11,19 +15,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
+import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
-
-import uk.co.appoly.arcorelocation.LocationScene
-import uk.co.appoly.arcorelocation.LocationMarker
-//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
-//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
-import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper
-//import uk.co.appoly.arcorelocation.utils.Utils2D
-
 import kotlinx.android.synthetic.main.activity_ar.*
+import uk.co.appoly.arcorelocation.LocationMarker
+import uk.co.appoly.arcorelocation.LocationScene
 
 
 class ArActivity : AppCompatActivity(){
@@ -57,10 +56,29 @@ class ArActivity : AppCompatActivity(){
         }
 
         //onUpdateListener for each frame
-        arFragment.arSceneView.scene.addOnUpdateListener {frameTime->
+        arFragment.arSceneView.scene.addOnUpdateListener { frameTime->
             arFragment.onUpdate(frameTime)
-          onUpdate()
+            onUpdate()
+
+            if(locationScene == null)
+            {
+                locationScene = LocationScene(this, arFragment.arSceneView)
+                locationScene.mLocationMarkers.add(LocationMarker(-0.119677, 51.478494, getAndy()))
+            }
+
+            if(locationScene != null)
+            {
+                locationScene.processFrame(frame)
+            }
         }
+
+
+    }
+
+    private fun getAndy(): Node
+    {
+       val base: Node? = Node()
+        base.renderable(andyRenderable)
     }
 
     //GET CAMERA POSITION ON EACH FRAME
@@ -75,6 +93,8 @@ class ArActivity : AppCompatActivity(){
             }
         }
     }
+
+
 
     private fun openMsgActivity()
     {
@@ -110,6 +130,7 @@ class ArActivity : AppCompatActivity(){
         val toast = Toast.makeText(applicationContext, modelFileName, Toast.LENGTH_SHORT)
         toast.show()
     }
+
 
 
 /*
