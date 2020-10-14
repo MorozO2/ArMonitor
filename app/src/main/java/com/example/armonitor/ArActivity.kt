@@ -1,5 +1,11 @@
+
 package com.example.armonitor
 
+//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
+//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
+//import uk.co.appoly.arcorelocation.utils.Utils2D
+
+import android.R
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -15,11 +21,13 @@ import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import kotlinx.android.synthetic.main.activity_ar.*
+import uk.co.appoly.arcorelocation.LocationScene
+import java.util.concurrent.CompletableFuture
 
 
 class ArActivity : AppCompatActivity(){
 
-
+    private lateinit var locationScene: LocationScene
     private var mUserRequestedInstall = true
     var mSession: Session? = null
     private var toMsg: Button? = null
@@ -48,14 +56,19 @@ class ArActivity : AppCompatActivity(){
         }
 
         //onUpdateListener for each frame
-      arFragment.arSceneView.scene.addOnUpdateListener {frameTime->
+        arFragment.arSceneView.scene.addOnUpdateListener { frameTime->
             arFragment.onUpdate(frameTime)
           onUpdate()
         }
+
+
+
+
     }
 
     fun onUpdate()
     {
+        //GET CAMERA POSITION ON EACH FRAME
         val frame: Frame? = arFragment.arSceneView.arFrame
         val camera: Camera? = frame?.camera
         if (camera != null) {

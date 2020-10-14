@@ -55,4 +55,7 @@ dependencies {
     implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0' //NECESSARY FOR MQTT
     implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5' //MQTT
     implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1' //MQTT
+
+    //ARCore-Location
+    implementation 'com.github.appoly:ARCore-Location:1.2'
 }
