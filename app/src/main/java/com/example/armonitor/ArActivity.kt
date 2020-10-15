@@ -1,7 +1,9 @@
 
 package com.example.armonitor
 
-import android.content.Intent
+
+ import android.content.Context
+ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -9,45 +11,29 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
-import com.google.ar.sceneform.rendering.ModelRenderable
+ import com.google.ar.sceneform.Node
+ import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
-import com.google.ar.core.Frame;
-import com.google.ar.core.Plane;
-import com.google.ar.core.Session;
-import com.google.ar.core.TrackingState;
-import com.google.ar.core.exceptions.CameraNotAvailableException;
-import com.google.ar.core.exceptions.UnavailableException;
-import com.google.ar.sceneform.ArSceneView;
-import com.google.ar.sceneform.Node;
-import com.google.ar.sceneform.rendering.ViewRenderable
-import com.example.armonitor.DemoUtils
-
-
-
 import kotlinx.android.synthetic.main.activity_ar.*
 import uk.co.appoly.arcorelocation.LocationMarker
 import uk.co.appoly.arcorelocation.LocationScene
-import uk.co.appoly.arcorelocation.rendering.LocationNode;
-import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
-import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
-
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ExecutionException
 
 
 class ArActivity : AppCompatActivity(){
 
-    private lateinit var locationScene: LocationScene
+    private var locationScene: LocationScene? = null
     private var mUserRequestedInstall = true
     var mSession: Session? = null
     private var toMsg: Button? = null
     private lateinit var arFragment: ArFragment
     private lateinit var selectedObject: Uri
+    private var andyRenderable: ModelRenderable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +45,7 @@ class ArActivity : AppCompatActivity(){
             openMsgActivity()
         })
 
-        val andy: CompletableFuture<ModelRenderable> = ModelRenderable.builder().setSource(this, R.raw.andy).build()
+        val andy: CompletableFuture<ModelRenderable> = ModelRenderable.builder().setSource(this, R.raw.sceneform_footprint).build()
 
 
         CompletableFuture.allOf(andy).handle { notUsed, throwable ->
@@ -104,6 +90,17 @@ class ArActivity : AppCompatActivity(){
 
     }
 
+    private fun getAndy():  Node? {
+        val base = Node()
+        base.setRenderable(andyRenderable)
+        val c: Context = this
+        base.setOnTapListener { v, event ->
+            Toast.makeText(
+                    c, "Andy touched.", Toast.LENGTH_LONG)
+                    .show()
+        }
+        return base
+    }
 
     //GET CAMERA POSITION ON EACH FRAME
     fun onUpdate()
@@ -120,12 +117,12 @@ class ArActivity : AppCompatActivity(){
         if(locationScene == null)
         {
             locationScene = LocationScene(this, arFragment.arSceneView)
-            locationScene.mLocationMarkers.add(LocationMarker(-0.119677, 51.478494, getAndy()))
+            locationScene?.mLocationMarkers?.add(LocationMarker(60.2627496,24.857228, getAndy()))
         }
 
         if(locationScene != null)
         {
-            locationScene.processFrame(frame)
+            locationScene?.processFrame(frame)
         }
     }
 
