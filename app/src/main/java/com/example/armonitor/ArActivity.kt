@@ -1,10 +1,6 @@
 
 package com.example.armonitor
 
-//import uk.co.appoly.arcorelocation.rendering.AnnotationRenderer
-//import uk.co.appoly.arcorelocation.rendering.ImageRenderer
-//import uk.co.appoly.arcorelocation.utils.Utils2D
-
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -13,16 +9,35 @@ import android.view.View
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+
 import com.google.ar.core.*
 import com.google.ar.sceneform.AnchorNode
-import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.rendering.ModelRenderable
 import com.google.ar.sceneform.rendering.Renderable
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import com.google.ar.core.Frame;
+import com.google.ar.core.Plane;
+import com.google.ar.core.Session;
+import com.google.ar.core.TrackingState;
+import com.google.ar.core.exceptions.CameraNotAvailableException;
+import com.google.ar.core.exceptions.UnavailableException;
+import com.google.ar.sceneform.ArSceneView;
+import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.rendering.ViewRenderable
+import com.example.armonitor.DemoUtils
+
+
+
 import kotlinx.android.synthetic.main.activity_ar.*
 import uk.co.appoly.arcorelocation.LocationMarker
 import uk.co.appoly.arcorelocation.LocationScene
+import uk.co.appoly.arcorelocation.rendering.LocationNode;
+import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
+import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
+
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.ExecutionException
 
 
 class ArActivity : AppCompatActivity(){
@@ -43,6 +58,29 @@ class ArActivity : AppCompatActivity(){
         toMsg.setOnClickListener(View.OnClickListener {
             openMsgActivity()
         })
+
+        val andy: CompletableFuture<ModelRenderable> = ModelRenderable.builder().setSource(this, R.raw.andy).build()
+
+
+        CompletableFuture.allOf(andy).handle { notUsed, throwable ->
+            if (throwable != null)
+            {
+                DemoUtils.displayError(this, "Unable to load renderables", throwable)
+                return@handle null
+            }
+
+            try {
+                andyRenderable = andy.get()
+            } catch (ex: InterruptedException) {
+                        DemoUtils.displayError(this, "Unable to load renderables", ex)
+            } catch (ex: ExecutionException) {
+                        DemoUtils.displayError(this, "Unable to load renderables", ex)
+            }
+
+            null
+        }
+
+
         //Tab listener for the ArFragment
         arFragment.setOnTapArPlaneListener { hitResult, plane, _ ->
             //If surface is not horizontal and upward facing
@@ -60,26 +98,12 @@ class ArActivity : AppCompatActivity(){
             arFragment.onUpdate(frameTime)
             onUpdate()
 
-            if(locationScene == null)
-            {
-                locationScene = LocationScene(this, arFragment.arSceneView)
-                locationScene.mLocationMarkers.add(LocationMarker(-0.119677, 51.478494, getAndy()))
-            }
 
-            if(locationScene != null)
-            {
-                locationScene.processFrame(frame)
-            }
         }
 
 
     }
 
-    private fun getAndy(): Node
-    {
-       val base: Node? = Node()
-        base.renderable(andyRenderable)
-    }
 
     //GET CAMERA POSITION ON EACH FRAME
     fun onUpdate()
@@ -91,6 +115,17 @@ class ArActivity : AppCompatActivity(){
                 val cameraPose: Pose = camera.displayOrientedPose
                 Log.i("Pose", "$cameraPose")
             }
+        }
+
+        if(locationScene == null)
+        {
+            locationScene = LocationScene(this, arFragment.arSceneView)
+            locationScene.mLocationMarkers.add(LocationMarker(-0.119677, 51.478494, getAndy()))
+        }
+
+        if(locationScene != null)
+        {
+            locationScene.processFrame(frame)
         }
     }
 
