@@ -117,7 +117,7 @@ class ArActivity : AppCompatActivity(){
         if(locationScene == null)
         {
             locationScene = LocationScene(this, arFragment.arSceneView)
-            locationScene?.mLocationMarkers?.add(LocationMarker(60.2627496,24.857228, getAndy()))
+            locationScene?.mLocationMarkers?.add(LocationMarker(60.262510, 24.857609, getAndy()))
         }
 
         if(locationScene != null)
