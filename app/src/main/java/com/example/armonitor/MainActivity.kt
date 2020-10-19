@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun connect(context : Context) {
         val clientID = MqttClient.generateClientId()
-        mqttAndroidClient = MqttAndroidClient(context.applicationContext, "tcp://192.168.10.248:1883", clientID)
+        mqttAndroidClient = MqttAndroidClient(context.applicationContext, "tcp://192.168.10.249:1883", clientID)
 
         try {
             val token = mqttAndroidClient.connect()
@@ -135,7 +135,10 @@ class MainActivity : AppCompatActivity() {
             {
                 try{
                     val data = String(message.payload, charset( "UTF-8"))
+                    val id = message.id.toString()
+
                     Log.i("Message:", data)
+                    Log.i("Message ID:", id)
                     DisplayMessage(data)
                 }catch(e : Exception){
                     Log.i("Message", "reception error")

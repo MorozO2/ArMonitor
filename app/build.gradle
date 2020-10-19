@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-
+apply plugin: 'com.google.ar.sceneform.plugin'
 
 
 android {
@@ -61,3 +61,10 @@ dependencies {
     //ARCore-Location
     implementation 'com.github.appoly:ARCore-Location:1.2'
 }
+
+
+
+sceneform.asset('sampledata/andy.obj', // 'Source Asset Path' specified during import.
+        'default',                    // 'Material Path' specified during import.
+        'sampledata/andy.sfa', // '.sfa Output Path' specified during import.
+        'src/main/res/raw/andy')      // '.sfb Output Path' specified during import.

@@ -40,12 +40,12 @@ class ArActivity : AppCompatActivity(){
         setContentView(R.layout.activity_ar)
         val toMsg = findViewById<Button>(R.id.toMsg)
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
-        //setModelPath("rocket.sfb")
+        setModelPath("android.resource://com.example.armonitor/raw/andy")
         toMsg.setOnClickListener(View.OnClickListener {
             openMsgActivity()
         })
 
-        val andy: CompletableFuture<ModelRenderable> = ModelRenderable.builder().setSource(this, R.raw.sceneform_footprint).build()
+        val andy: CompletableFuture<ModelRenderable> = ModelRenderable.builder().setSource(this, R.raw.andy).build()
 
 
         CompletableFuture.allOf(andy).handle { notUsed, throwable ->
