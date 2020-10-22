@@ -2,45 +2,66 @@
 package com.example.armonitor
 
 
+ import android.content.BroadcastReceiver
  import android.content.Context
  import android.content.Intent
-import android.net.Uri
-import android.os.Bundle
-import android.util.Log
-import android.view.View
-import android.widget.Button
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.google.ar.core.*
-import com.google.ar.sceneform.AnchorNode
+ import android.content.IntentFilter
+ import android.net.Uri
+ import android.net.wifi.ScanResult
+ import android.net.wifi.WifiManager
+ import android.os.Bundle
+ import android.util.Log
+ import android.view.View
+ import android.widget.Button
+ import android.widget.Toast
+ import androidx.appcompat.app.AppCompatActivity
+ import com.google.ar.core.*
+ import com.google.ar.sceneform.AnchorNode
  import com.google.ar.sceneform.Node
  import com.google.ar.sceneform.rendering.ModelRenderable
-import com.google.ar.sceneform.rendering.Renderable
-import com.google.ar.sceneform.ux.ArFragment
-import com.google.ar.sceneform.ux.TransformableNode
-import kotlinx.android.synthetic.main.activity_ar.*
-import uk.co.appoly.arcorelocation.LocationMarker
-import uk.co.appoly.arcorelocation.LocationScene
-import java.util.concurrent.CompletableFuture
-import java.util.concurrent.ExecutionException
+ import com.google.ar.sceneform.rendering.Renderable
+ import com.google.ar.sceneform.ux.ArFragment
+ import com.google.ar.sceneform.ux.TransformableNode
+ import kotlinx.android.synthetic.main.activity_ar.*
+ import java.util.concurrent.CompletableFuture
+ import java.util.concurrent.ExecutionException
 
 
-class ArActivity : AppCompatActivity(){
+class ArActivity : AppCompatActivity() {
 
-    private var locationScene: LocationScene? = null
-    private var mUserRequestedInstall = true
-    var mSession: Session? = null
     private var toMsg: Button? = null
     private lateinit var arFragment: ArFragment
     private lateinit var selectedObject: Uri
     private var andyRenderable: ModelRenderable? = null
+    private lateinit var wifiMan: WifiManager
+    private lateinit var networks: List<ScanResult>
+
+
+    private var wifiBroadcastReceiver: BroadcastReceiver = object:BroadcastReceiver()
+    {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            Toast.makeText(applicationContext, "SCANNING", Toast.LENGTH_LONG).show()
+            networks = wifiMan.scanResults
+            if(networks.isEmpty())
+            {
+                Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
+            }
+            unregisterReceiver(this)
+        }
+
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ar)
         val toMsg = findViewById<Button>(R.id.toMsg)
+        wifiMan = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
+
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
+
         setModelPath("android.resource://com.example.armonitor/raw/andy")
+
         toMsg.setOnClickListener(View.OnClickListener {
             openMsgActivity()
         })
@@ -79,15 +100,56 @@ class ArActivity : AppCompatActivity(){
             placeObject(arFragment, anchor, selectedObject)
         }
 
+        if(!wifiMan.isWifiEnabled)
+        {
+            Toast.makeText(applicationContext, "WIFI DISABLED", Toast.LENGTH_LONG).show()
+        }
+        scanWifi()
+        /*networks = wifiMan.scanResults
+        if(networks.isEmpty())
+        {
+            Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
+        }
+        else
+        {
+            Toast.makeText(applicationContext, "GOT NETWORKS", Toast.LENGTH_LONG).show()
+        }*/
         //onUpdateListener for each frame
         arFragment.arSceneView.scene.addOnUpdateListener { frameTime->
             arFragment.onUpdate(frameTime)
             onUpdate()
-
-
         }
+    }
 
 
+
+    private fun scanWifi()
+    {
+        registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
+        wifiMan.startScan()
+        /*networks = wifiMan.scanResults
+        if(networks.isEmpty())
+        {
+            Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
+        }*/
+    }
+
+
+
+
+
+
+    //GET CAMERA POSITION ON EACH FRAME
+    fun onUpdate()
+    {
+        val frame: Frame? = arFragment.arSceneView.arFrame
+        val camera: Camera? = frame?.camera
+        if (camera != null) {
+            if(camera.trackingState == TrackingState.TRACKING) {
+                val cameraPose: Pose = camera.displayOrientedPose
+                Log.i("Pose", "$cameraPose")
+            }
+        }
     }
 
     private fun getAndy():  Node? {
@@ -101,32 +163,6 @@ class ArActivity : AppCompatActivity(){
         }
         return base
     }
-
-    //GET CAMERA POSITION ON EACH FRAME
-    fun onUpdate()
-    {
-        val frame: Frame? = arFragment.arSceneView.arFrame
-        val camera: Camera? = frame?.camera
-        if (camera != null) {
-            if(camera.trackingState == TrackingState.TRACKING) {
-                val cameraPose: Pose = camera.displayOrientedPose
-                Log.i("Pose", "$cameraPose")
-            }
-        }
-
-        if(locationScene == null)
-        {
-            locationScene = LocationScene(this, arFragment.arSceneView)
-            locationScene?.mLocationMarkers?.add(LocationMarker(60.2627496,24.857228, getAndy()))
-        }
-
-        if(locationScene != null)
-        {
-            locationScene?.processFrame(frame)
-        }
-    }
-
-
 
     private fun openMsgActivity()
     {
@@ -162,53 +198,4 @@ class ArActivity : AppCompatActivity(){
         val toast = Toast.makeText(applicationContext, modelFileName, Toast.LENGTH_SHORT)
         toast.show()
     }
-
-
-
-/*
-    protected override fun onResume() {
-        super.onResume()
-        //CHECKS CAMERA PERMISSION
-        if(!CameraPermissionHelper.hasCameraPermission(this))
-        {
-            CameraPermissionHelper.requestCameraPermission(this)
-            return
-        }
-
-        //CHECKS WHETHER GOOGLE PLAY SERVICES FOR AR IS INSTALLED
-        try {
-
-            if(mSession == null)
-            {
-                when(ArCoreApk.getInstance().requestInstall(this, mUserRequestedInstall))
-                {
-                    ArCoreApk.InstallStatus.INSTALLED -> mSession = Session(this)
-                    ArCoreApk.InstallStatus.INSTALL_REQUESTED -> {
-                        mUserRequestedInstall = false
-                        return
-                    }
-                }
-            }
-
-        }catch(  e: UnavailableUserDeclinedInstallationException){
-            Toast.makeText(this, "TODO: handle exception: $e", Toast.LENGTH_LONG).show()
-            return
-        }
-    }
-
-    public override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-
-        if(!CameraPermissionHelper.hasCameraPermission(this))
-        {
-            Toast.makeText(this, "Camera persmisssion is needed to run this applicatoin", Toast.LENGTH_LONG).show()
-            if(!CameraPermissionHelper.shouldShowRequestPermissionRationale(this))
-            {
-                CameraPermissionHelper.launchPermissionSettings(this)
-            }
-            finish()
-        }
-    }
-    */
-
-
 }
