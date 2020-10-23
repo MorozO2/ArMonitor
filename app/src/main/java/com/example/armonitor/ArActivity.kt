@@ -2,19 +2,26 @@
 package com.example.armonitor
 
 
+ import android.Manifest
  import android.content.BroadcastReceiver
  import android.content.Context
  import android.content.Intent
  import android.content.IntentFilter
+ import android.content.pm.PackageManager
  import android.net.Uri
  import android.net.wifi.ScanResult
  import android.net.wifi.WifiManager
+ import android.net.wifi.rtt.RangingRequest
+ import android.net.wifi.rtt.RangingResult
+ import android.net.wifi.rtt.RangingResultCallback
+ import android.net.wifi.rtt.WifiRttManager
  import android.os.Bundle
  import android.util.Log
  import android.view.View
  import android.widget.Button
  import android.widget.Toast
  import androidx.appcompat.app.AppCompatActivity
+ import androidx.core.app.ActivityCompat
  import com.google.ar.core.*
  import com.google.ar.sceneform.AnchorNode
  import com.google.ar.sceneform.Node
@@ -34,19 +41,37 @@ class ArActivity : AppCompatActivity() {
     private lateinit var selectedObject: Uri
     private var andyRenderable: ModelRenderable? = null
     private lateinit var wifiMan: WifiManager
+    private lateinit var rangingMan: WifiRttManager
     private lateinit var networks: List<ScanResult>
 
 
     private var wifiBroadcastReceiver: BroadcastReceiver = object:BroadcastReceiver()
     {
         override fun onReceive(context: Context?, intent: Intent?) {
-            Toast.makeText(applicationContext, "SCANNING", Toast.LENGTH_LONG).show()
-            networks = wifiMan.scanResults
-            if(networks.isEmpty())
-            {
-                Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
-            }
             unregisterReceiver(this)
+        }
+
+    }
+
+    private val rangingCallBack: RangingResultCallback = object : RangingResultCallback()
+    {
+        override fun onRangingFailure(code: Int) {
+            Toast.makeText(applicationContext, "RANGING FAILURE", Toast.LENGTH_LONG).show()
+        }
+
+        override fun onRangingResults(results: MutableList<RangingResult>) {
+            if(results.isEmpty())
+            {
+                Toast.makeText(applicationContext, "NO RESULTS", Toast.LENGTH_LONG).show()
+            }
+            else
+            {
+                for(result in results)
+                {
+                    Toast.makeText(applicationContext, "Distance: ${result.distanceMm}", Toast.LENGTH_LONG).show()
+                }
+            }
+
         }
 
     }
@@ -55,9 +80,11 @@ class ArActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ar)
-        val toMsg = findViewById<Button>(R.id.toMsg)
-        wifiMan = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
+        val toMsg = findViewById<Button>(R.id.toMsg)
+
+        wifiMan = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
+        rangingMan = this.getSystemService(Context.WIFI_RTT_RANGING_SERVICE) as WifiRttManager
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
 
         setModelPath("android.resource://com.example.armonitor/raw/andy")
@@ -104,16 +131,11 @@ class ArActivity : AppCompatActivity() {
         {
             Toast.makeText(applicationContext, "WIFI DISABLED", Toast.LENGTH_LONG).show()
         }
-        scanWifi()
-        /*networks = wifiMan.scanResults
-        if(networks.isEmpty())
-        {
-            Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
-        }
         else
         {
-            Toast.makeText(applicationContext, "GOT NETWORKS", Toast.LENGTH_LONG).show()
-        }*/
+            scanWifi()
+        }
+
         //onUpdateListener for each frame
         arFragment.arSceneView.scene.addOnUpdateListener { frameTime->
             arFragment.onUpdate(frameTime)
@@ -127,11 +149,47 @@ class ArActivity : AppCompatActivity() {
     {
         registerReceiver(wifiBroadcastReceiver, IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION))
         wifiMan.startScan()
-        /*networks = wifiMan.scanResults
+        networks = wifiMan.scanResults
         if(networks.isEmpty())
         {
-            Toast.makeText(applicationContext, "NO NETWORKS", Toast.LENGTH_LONG).show()
-        }*/
+            Toast.makeText(applicationContext, "NO DEVICES DETECTED", Toast.LENGTH_LONG).show()
+        }
+        else
+        {
+           // Toast.makeText(applicationContext, "DEVICES DETECTED", Toast.LENGTH_LONG).show()
+        }
+        if(rangingMan.isAvailable)
+        {
+            Toast.makeText(applicationContext, "RTT AVAILABLE", Toast.LENGTH_LONG).show()
+        }
+        else
+        {
+            Toast.makeText(applicationContext, "RTT NOT AVAILABLE", Toast.LENGTH_LONG).show()
+        }
+
+        for(network in networks)
+        {
+            if(network.SSID == "Auramoroz Ltd.")
+            {
+                //Toast.makeText(applicationContext, "${network.BSSID}", Toast.LENGTH_LONG).show()
+                val req: RangingRequest = RangingRequest.Builder().run {
+                    addAccessPoint(network)
+                    build()
+                }
+
+                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    return
+                }
+                rangingMan.startRanging(req, this.mainExecutor, rangingCallBack)
+            }
+        }
     }
 
 

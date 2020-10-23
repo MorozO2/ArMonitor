@@ -17,8 +17,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.armonitor"
-        minSdkVersion 24
-        targetSdkVersion 27
+        minSdkVersion 28
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
 
