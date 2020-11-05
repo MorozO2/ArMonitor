@@ -14,7 +14,6 @@ package com.example.armonitor
  import android.net.wifi.rtt.RangingRequest
  import android.net.wifi.rtt.RangingResult
  import android.net.wifi.rtt.RangingResultCallback
- import android.net.wifi.rtt.WifiRttManager
  import android.os.Bundle
  import android.util.Log
  import android.view.View
@@ -41,13 +40,15 @@ class ArActivity : AppCompatActivity() {
     private lateinit var selectedObject: Uri
     private var andyRenderable: ModelRenderable? = null
     private lateinit var wifiMan: WifiManager
-    private lateinit var rangingMan: WifiRttManager
+  //  private lateinit var rangingMan: WifiRttManager
     private lateinit var networks: List<ScanResult>
 
 
     private var wifiBroadcastReceiver: BroadcastReceiver = object:BroadcastReceiver()
     {
         override fun onReceive(context: Context?, intent: Intent?) {
+           // rangingMan = applicationContext.getSystemService(Context.WIFI_RTT_RANGING_SERVICE) as WifiRttManager
+
             unregisterReceiver(this)
         }
 
@@ -84,7 +85,6 @@ class ArActivity : AppCompatActivity() {
         val toMsg = findViewById<Button>(R.id.toMsg)
 
         wifiMan = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        rangingMan = this.getSystemService(Context.WIFI_RTT_RANGING_SERVICE) as WifiRttManager
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
 
         setModelPath("android.resource://com.example.armonitor/raw/andy")
@@ -158,6 +158,7 @@ class ArActivity : AppCompatActivity() {
         {
            // Toast.makeText(applicationContext, "DEVICES DETECTED", Toast.LENGTH_LONG).show()
         }
+        /*
         if(rangingMan.isAvailable)
         {
             Toast.makeText(applicationContext, "RTT AVAILABLE", Toast.LENGTH_LONG).show()
@@ -166,7 +167,7 @@ class ArActivity : AppCompatActivity() {
         {
             Toast.makeText(applicationContext, "RTT NOT AVAILABLE", Toast.LENGTH_LONG).show()
         }
-
+        */
         for(network in networks)
         {
             if(network.SSID == "Auramoroz Ltd.")
@@ -187,7 +188,7 @@ class ArActivity : AppCompatActivity() {
                     // for ActivityCompat#requestPermissions for more details.
                     return
                 }
-                rangingMan.startRanging(req, this.mainExecutor, rangingCallBack)
+                //rangingMan.startRanging(req, this.mainExecutor, rangingCallBack)
             }
         }
     }
