@@ -1,5 +1,6 @@
 package com.example.armonitor
 
+
 import android.content.Context
 import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
@@ -7,6 +8,8 @@ import org.eclipse.paho.client.mqttv3.*
 
 
 class MqttHandler(private val context: Context) {
+
+
 
     val client by lazy {
         val clientId = MqttClient.generateClientId()
@@ -35,19 +38,18 @@ class MqttHandler(private val context: Context) {
     }
 
 
-    fun subscribe(topic : String)
+    fun subscribe(topic: String)
     {
         var qos = 1
         try{
 
             client.subscribe(topic, qos, null, object :
-                    IMqttActionListener{
+                    IMqttActionListener {
                 override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.i("Subsription" , "success")
+                    Log.i("Subsription", "success")
                 }
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable)
-                {
+                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
                     Log.i("Subscription", "failure")
                 }
             })
@@ -57,37 +59,33 @@ class MqttHandler(private val context: Context) {
         }
     }
 
-    fun receiveMessages()
+    fun receiveMessages(disp:(msg: String) -> Unit)
     {
-        client.setCallback(object : MqttCallback
-        {
-            override fun connectionLost(cause: Throwable?)
-            {
+        client.setCallback(object : MqttCallback {
+            override fun connectionLost(cause: Throwable?) {
                 Log.i("Connection", "Lost")
             }
 
-            override fun messageArrived(topic: String, message: MqttMessage)
-            {
-                try{
-                    val data = String(message.payload, charset( "UTF-8"))
+            override fun messageArrived(topic: String, message: MqttMessage) {
+                try {
+                    val data = String(message.payload, charset("UTF-8"))
                     val id = message.id.toString()
-
+                    disp(data)
                     Log.i("Message:", data)
                     Log.i("Message ID:", id)
-                   // DisplayMessage(data)
-                }catch(e : Exception){
+                    // DisplayMessage(data)
+                } catch (e: Exception) {
                     Log.i("Message", "reception error")
                 }
             }
 
-            override fun deliveryComplete(token: IMqttDeliveryToken?)
-            {
-                Log.i("Message","received")
+            override fun deliveryComplete(token: IMqttDeliveryToken?) {
+                Log.i("Message", "received")
             }
         })
     }
 
-    fun unsubscribe(topic : String)
+    fun unsubscribe(topic: String)
     {
         try{
 
@@ -103,10 +101,9 @@ class MqttHandler(private val context: Context) {
                 }
             }
 
-        }catch(e : MqttException){
+        }catch (e: MqttException){
             Log.i("Unsubscription", "failure")
         }
     }
-
 
 }

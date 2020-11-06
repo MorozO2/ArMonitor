@@ -1,10 +1,12 @@
 package com.example.armonitor
 
+
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         mqtt.connect(topic)
       //  subscribe(topic)
-        mqtt.receiveMessages()
+        mqtt.receiveMessages(::DisplayMessage)
     }
 
     ///METHOD FOR OPENING AR ACTIVITY//////////////////////////////////////////
@@ -44,26 +46,22 @@ class MainActivity : AppCompatActivity() {
         startActivity(openArView)
     }
 
+    fun DisplayMessage(msg: String) {
 
-    private fun DisplayMessage(msg: String) {
-        val ll = findViewById<View>(R.id.receivedLayout) as LinearLayout
+        var ll = findViewById<View>(R.id.receivedLayout) as LinearLayout
         val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
         params.setMargins(ViewGroup.LayoutParams.MATCH_PARENT, 10, ViewGroup.LayoutParams.MATCH_PARENT, 10)
         val mqttMsg = TextView(applicationContext)
         mqttMsg.layoutParams = params
-        mqttMsg.setBackgroundColor(resources.getColor(R.color.lime))
+        mqttMsg.setBackgroundColor(applicationContext.getColor(R.color.lime))
         mqttMsg.gravity = Gravity.CENTER or Gravity.BOTTOM
         mqttMsg.text = msg
         ll.addView(mqttMsg)
     }
 
-
-
-
-
-
-
     companion object {
         private val TAG = MainActivity::class.java.simpleName
     }
 }
+
+
