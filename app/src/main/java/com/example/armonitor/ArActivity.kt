@@ -47,7 +47,7 @@ class ArActivity : AppCompatActivity() {
     private var wifiBroadcastReceiver: BroadcastReceiver = object:BroadcastReceiver()
     {
         override fun onReceive(context: Context?, intent: Intent?) {
-           // rangingMan = applicationContext.getSystemService(Context.WIFI_RTT_RANGING_SERVICE) as WifiRttManager
+        //    rangingMan = applicationContext.getSystemService(Context.WIFI_RTT_RANGING_SERVICE) as WifiRttManager
 
             unregisterReceiver(this)
         }
@@ -86,6 +86,19 @@ class ArActivity : AppCompatActivity() {
 
         wifiMan = this.getSystemService(Context.WIFI_SERVICE) as WifiManager
         arFragment = supportFragmentManager.findFragmentById(arView.id) as ArFragment
+
+        if(this.packageManager.hasSystemFeature(PackageManager.FEATURE_WIFI_RTT))
+        {
+            Log.i("HAS RTT", "TRUE")
+            Toast.makeText(applicationContext, "HAS RTT", Toast.LENGTH_LONG).show()
+
+        }
+        else
+        {
+            Log.i("HAS RTT", "FALSE")
+            Toast.makeText(applicationContext, "NO RTT", Toast.LENGTH_LONG).show()
+
+        }
 
         setModelPath("android.resource://com.example.armonitor/raw/andy")
 
@@ -152,7 +165,7 @@ class ArActivity : AppCompatActivity() {
         networks = wifiMan.scanResults
         if(networks.isEmpty())
         {
-            Toast.makeText(applicationContext, "NO DEVICES DETECTED", Toast.LENGTH_LONG).show()
+          //  Toast.makeText(applicationContext, "NO DEVICES DETECTED", Toast.LENGTH_LONG).show()
         }
         else
         {
@@ -172,7 +185,7 @@ class ArActivity : AppCompatActivity() {
         {
             if(network.SSID == "Auramoroz Ltd.")
             {
-                //Toast.makeText(applicationContext, "${network.BSSID}", Toast.LENGTH_LONG).show()
+                Toast.makeText(applicationContext, "${network.BSSID}", Toast.LENGTH_LONG).show()
                 val req: RangingRequest = RangingRequest.Builder().run {
                     addAccessPoint(network)
                     build()

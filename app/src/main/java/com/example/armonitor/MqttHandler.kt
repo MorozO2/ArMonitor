@@ -2,6 +2,7 @@ package com.example.armonitor
 
 
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
@@ -9,6 +10,9 @@ import org.eclipse.paho.client.mqttv3.*
 
 class MqttHandler(private val context: Context) {
 
+    val red = Color.parseColor("#F7370D")
+    val green = Color.parseColor("#FFC300")
+    val yellow = Color.parseColor("#9EDC0B")
 
 
     val client by lazy {
@@ -59,7 +63,7 @@ class MqttHandler(private val context: Context) {
         }
     }
 
-    fun receiveMessages(disp:(msg: String) -> Unit)
+    fun receiveMessages(display:(msg: String, color: Int, id: Int) -> Unit)
     {
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
@@ -69,10 +73,10 @@ class MqttHandler(private val context: Context) {
             override fun messageArrived(topic: String, message: MqttMessage) {
                 try {
                     val data = String(message.payload, charset("UTF-8"))
-                    val id = message.id.toString()
-                    disp(data)
+                    val id = message.id
+                    display(data, red, id)
                     Log.i("Message:", data)
-                    Log.i("Message ID:", id)
+                    Log.i("Message ID:", id.toString())
                     // DisplayMessage(data)
                 } catch (e: Exception) {
                     Log.i("Message", "reception error")
