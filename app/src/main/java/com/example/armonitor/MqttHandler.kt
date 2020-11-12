@@ -20,7 +20,7 @@ class MqttHandler(private val context: Context) {
         MqttAndroidClient(context, "tcp://192.168.10.249:1883", clientId)
     }
 
-    fun connect(topic: String) {
+    fun connect(topics: Array<String>) {
 
         try {
             val token = client.connect()
@@ -28,7 +28,7 @@ class MqttHandler(private val context: Context) {
                 override fun onSuccess(asyncActionToken: IMqttToken)
                 {
                     Log.i("Connection", "success")
-                    subscribe(topic)
+                    subscribe(topics)
                 }
 
                 override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
@@ -42,28 +42,34 @@ class MqttHandler(private val context: Context) {
     }
 
 
-    fun subscribe(topic: String)
+    fun subscribe(topics: Array<String>)
     {
         var qos = 1
+       // val topic = topics.iterator()
         try{
 
-            client.subscribe(topic, qos, null, object :
-                    IMqttActionListener {
-                override fun onSuccess(asyncActionToken: IMqttToken) {
-                    Log.i("Subsription", "success")
-                }
+            //GO THROUGH TOPICS AND SUBSCRIBE TO EACH ONE
+            for(topic in topics) {
 
-                override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
-                    Log.i("Subscription", "failure")
-                }
-            })
+                client.subscribe(topic, qos, null, object :
+                        IMqttActionListener {
+                    override fun onSuccess(asyncActionToken: IMqttToken) {
+                        Log.i("Subsription to '${topic}'", "success")
+                    }
+
+                    override fun onFailure(asyncActionToken: IMqttToken, exception: Throwable) {
+                        Log.i("Subscription to '${topic}", "failure")
+                    }
+                })
+
+            }
 
         } catch (e: MqttException){
             Log.i("Subscription", "failure")
         }
     }
 
-    fun receiveMessages(display:(msg: String, color: Int, id: Int) -> Unit)
+    fun receiveMessages(display:(msg: String, color: Int, topic: String) -> Unit)
     {
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
@@ -73,10 +79,8 @@ class MqttHandler(private val context: Context) {
             override fun messageArrived(topic: String, message: MqttMessage) {
                 try {
                     val data = String(message.payload, charset("UTF-8"))
-                    val id = message.id
-                    display(data, red, id)
+                    display(data, red, topic)
                     Log.i("Message:", data)
-                    Log.i("Message ID:", id.toString())
                     // DisplayMessage(data)
                 } catch (e: Exception) {
                     Log.i("Message", "reception error")

@@ -17,7 +17,7 @@ class MainActivity : AppCompatActivity() {
     private var toAr: Button? = null
     private lateinit var mqttAndroidClient: MqttAndroidClient
     private val mqtt: MqttHandler = MqttHandler(this)
-    val topic = "raspi1/temp"
+    val topics: Array<String> = arrayOf("raspi1/temp", "raspi2/paper")
     val qos = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -31,7 +31,8 @@ class MainActivity : AppCompatActivity() {
         })
 
 
-        mqtt.connect(topic)
+        mqtt.connect(topics)
+       // mqtt.subscribe("raspi1/paper")
         mqtt.receiveMessages(::DisplayMessage)
     }
 
@@ -41,21 +42,29 @@ class MainActivity : AppCompatActivity() {
         startActivity(openArView)
     }
 
-    fun DisplayMessage(msg: String, viewColor: Int, id: Int) {
+    fun DisplayMessage(msg: String, viewColor: Int, topic: String) {
 
 
         var ll = findViewById<View>(R.id.receivedLayout) as LinearLayout
         val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        val currentView = ll.findViewWithTag<TextView>("raspi1/temp")
         params.setMargins(ViewGroup.LayoutParams.MATCH_PARENT, 10, ViewGroup.LayoutParams.MATCH_PARENT, 10)
-        val mqttMsg = TextView(applicationContext)
-        mqttMsg.layoutParams = params
-        mqttMsg.setBackgroundColor(viewColor)
-        mqttMsg.setId(id)
-        mqttMsg.gravity = Gravity.CENTER or Gravity.BOTTOM
-        mqttMsg.setTextSize(30.0F)
-        mqttMsg.text = mqttMsg.id.toString() + "       " + msg
 
-        ll.addView(mqttMsg)
+        if(currentView == null) {
+            val mqttMsg = TextView(applicationContext)
+            mqttMsg.layoutParams = params
+            mqttMsg.setBackgroundColor(viewColor)
+            mqttMsg.gravity = Gravity.CENTER or Gravity.BOTTOM
+            mqttMsg.setTextSize(30.0F)
+            mqttMsg.setTag(topic)
+            mqttMsg.text = topic + "       " + msg
+
+            ll.addView(mqttMsg)
+        }
+        else
+        {
+            currentView.text = "View ID: " + currentView.id.toString() + "       " + msg
+        }
     }
 
     companion object {
