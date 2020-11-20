@@ -18,6 +18,7 @@ package com.example.armonitor
  import android.util.Log
  import android.view.View
  import android.widget.Button
+ import android.widget.TextView
  import android.widget.Toast
  import androidx.appcompat.app.AppCompatActivity
  import androidx.core.app.ActivityCompat
@@ -31,16 +32,19 @@ package com.example.armonitor
  import kotlinx.android.synthetic.main.activity_ar.*
  import java.util.concurrent.CompletableFuture
  import java.util.concurrent.ExecutionException
+ import kotlin.math.log
+ import kotlin.math.pow
 
 
 class ArActivity : AppCompatActivity() {
 
-    private var toMsg: Button? = null
+    private lateinit var distanceDisplay: TextView
     private lateinit var arFragment: ArFragment
     private lateinit var selectedObject: Uri
     private var andyRenderable: ModelRenderable? = null
     private lateinit var wifiMan: WifiManager
-
+    private var base = 10.0
+    private var dist: Double? = null
     private lateinit var networks: List<ScanResult>
 
 
@@ -59,6 +63,8 @@ class ArActivity : AppCompatActivity() {
         setContentView(R.layout.activity_ar)
 
         val toMsg = findViewById<Button>(R.id.toMsg)
+        distanceDisplay = findViewById<TextView>(R.id.distance)
+
 
         wifiMan = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
 
@@ -146,7 +152,7 @@ class ArActivity : AppCompatActivity() {
                 if(network.SSID == "Auramoroz Ltd.")
                 {
                     Toast.makeText(applicationContext, "${network.BSSID}", Toast.LENGTH_LONG).show()
-                    Toast.makeText(applicationContext, "${wifiBroadcastReceiver.}", Toast.LENGTH_LONG).show()
+
                     val req: RangingRequest = RangingRequest.Builder().run {
                         addAccessPoint(network)
                         build()
@@ -187,8 +193,13 @@ class ArActivity : AppCompatActivity() {
             if(camera.trackingState == TrackingState.TRACKING) {
                 val cameraPose: Pose = camera.displayOrientedPose
                 Log.i("Pose", "$cameraPose")
+
+
             }
         }
+        dist = base.pow( (wifiMan.connectionInfo.rssi)/10*6.9861)
+        distanceDisplay.setText("${dist!!.toFloat()}")
+
     }
 
     private fun getAndy():  Node? {
