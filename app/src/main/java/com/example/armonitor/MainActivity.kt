@@ -2,6 +2,7 @@ package com.example.armonitor
 
 
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -17,8 +18,10 @@ class MainActivity : AppCompatActivity() {
     private var toAr: Button? = null
     private lateinit var mqttAndroidClient: MqttAndroidClient
     private val mqtt: MqttHandler = MqttHandler(this)
-    val topics: Array<String> = arrayOf("raspi1/temp", "raspi2/paper")
+    val topics: Array<String> = arrayOf("temp", "paper")
     val qos = 1
+    val red = Color.parseColor("#F7370D")
+    val green = Color.parseColor("#9EDC0B")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +35,6 @@ class MainActivity : AppCompatActivity() {
 
 
         mqtt.connect(topics)
-       // mqtt.subscribe("raspi1/paper")
         mqtt.receiveMessages(::DisplayMessage)
     }
 
@@ -42,29 +44,57 @@ class MainActivity : AppCompatActivity() {
         startActivity(openArView)
     }
 
-    fun DisplayMessage(msg: String, viewColor: Int, topic: String) {
+    fun DisplayMessage(msg: String, topic: String) {
 
 
         var ll = findViewById<View>(R.id.receivedLayout) as LinearLayout
         val params = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-        val currentView = ll.findViewWithTag<TextView>("raspi1/temp")
+        val currentView = ll.findViewWithTag<TextView>(topic)
         params.setMargins(ViewGroup.LayoutParams.MATCH_PARENT, 10, ViewGroup.LayoutParams.MATCH_PARENT, 10)
 
-        if(currentView == null) {
+        if (currentView == null) {
             val mqttMsg = TextView(applicationContext)
             mqttMsg.layoutParams = params
-            mqttMsg.setBackgroundColor(viewColor)
+            mqttMsg.setBackgroundColor(setColor(topic, msg.toInt()))
             mqttMsg.gravity = Gravity.CENTER or Gravity.BOTTOM
             mqttMsg.setTextSize(30.0F)
             mqttMsg.setTag(topic)
             mqttMsg.text = topic + "       " + msg
 
             ll.addView(mqttMsg)
+        } else {
+            currentView.setBackgroundColor(setColor(topic, msg.toInt()))
+            currentView.text = topic + "      " + msg
         }
-        else
-        {
-            currentView.text = "View ID: " + currentView.id.toString() + "       " + msg
+    }
+
+    fun setColor(topic: String, value: Int): Int {
+
+        val maxTemp = 50
+        val minPaper = 100
+        if (topic >= "temp") {
+            if (value > maxTemp)
+            {
+                return red
+            }
+            else
+            {
+                return green
+            }
         }
+
+        else if (topic == "paper") {
+            if (value < minPaper)
+            {
+                return red
+            }
+
+            else
+            {
+                return green
+            }
+        }
+        return 0
     }
 
     companion object {

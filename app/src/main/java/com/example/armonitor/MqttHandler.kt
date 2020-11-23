@@ -10,14 +10,13 @@ import org.eclipse.paho.client.mqttv3.*
 
 class MqttHandler(private val context: Context) {
 
-    val red = Color.parseColor("#F7370D")
-    val green = Color.parseColor("#FFC300")
+
     val yellow = Color.parseColor("#9EDC0B")
 
 
     val client by lazy {
         val clientId = MqttClient.generateClientId()
-        MqttAndroidClient(context, "tcp://192.168.10.249:1883", clientId)
+        MqttAndroidClient(context, "tcp://192.168.10.160:1883", clientId)
     }
 
     fun connect(topics: Array<String>) {
@@ -69,7 +68,7 @@ class MqttHandler(private val context: Context) {
         }
     }
 
-    fun receiveMessages(display:(msg: String, color: Int, topic: String) -> Unit)
+    fun receiveMessages(display:(msg: String,  topic: String) -> Unit)
     {
         client.setCallback(object : MqttCallback {
             override fun connectionLost(cause: Throwable?) {
@@ -79,7 +78,7 @@ class MqttHandler(private val context: Context) {
             override fun messageArrived(topic: String, message: MqttMessage) {
                 try {
                     val data = String(message.payload, charset("UTF-8"))
-                    display(data, red, topic)
+                    display(data, topic)
                     Log.i("Message:", data)
                     // DisplayMessage(data)
                 } catch (e: Exception) {
